@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Form, Button } from "react-bootstrap";
 import { Contact, ContactType } from "@/types/contact";
@@ -11,14 +11,28 @@ type FormInputs = {
 
 interface ContactFormProps {
     onSubmit: (data: Omit<Contact, 'id'>) => void;
+    editingContact?: Contact | null;
 }
 
-const ContactForm: FC<ContactFormProps> = ({ onSubmit }) => {
+const ContactForm: FC<ContactFormProps> = ({ onSubmit, editingContact }) => {
     const {
         register,
         handleSubmit,
-        formState: { errors }
-    } = useForm<FormInputs>();
+        formState: { errors },
+        reset,
+    } = useForm<FormInputs>({
+        defaultValues: {
+            type: editingContact?.type || ContactType.Phone,
+            value: editingContact?.value || '',
+            description: editingContact?.description || '',
+        }
+    });
+
+    useEffect(() => {
+        if (editingContact) {
+            reset(editingContact);
+        }
+    }, [editingContact, reset]);
 
     const handleFormSubmit: SubmitHandler<FormInputs> = (data) => {
         onSubmit(data);
@@ -55,11 +69,10 @@ const ContactForm: FC<ContactFormProps> = ({ onSubmit }) => {
                     placeholder="Введите email, телефон и т.д"
                     {...register("value", { required: "Это поле обязательное" })}
                     isInvalid={!!errors.value}
-                >
-                    <Form.Control.Feedback type="invalid">
-                        {errors.value?.message}
-                    </Form.Control.Feedback>
-                </Form.Control>
+                />
+                <Form.Control.Feedback type="invalid">
+                    {errors.value?.message}
+                </Form.Control.Feedback>
             </Form.Group>
 
             {/* поле с описанием */}
@@ -77,5 +90,7 @@ const ContactForm: FC<ContactFormProps> = ({ onSubmit }) => {
                 Сохранить
             </Button>
         </Form>
-    )
-}
+    );
+};
+
+export default ContactForm;

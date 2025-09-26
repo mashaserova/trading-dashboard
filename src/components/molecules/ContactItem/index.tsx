@@ -5,9 +5,10 @@ import { ListGroup, Button, Stack } from "react-bootstrap";
 interface ContactItemProps {
     contact: Contact;
     onDelete: (id: string) => void;
+    onEdit: (contact: Contact) => void;
 }
 
-const ContactItem: FC<ContactItemProps> = ({ contact, onDelete }) => {
+const ContactItem: FC<ContactItemProps> = ({ contact, onDelete, onEdit }) => {
     return (
         <ListGroup.Item as="li" className="d-flex justify-content-between align-items-start">
             <div className="ms-2 me-auto">
@@ -15,7 +16,11 @@ const ContactItem: FC<ContactItemProps> = ({ contact, onDelete }) => {
                 {contact.description}
             </div>
             <Stack direction="horizontal" gap={2}>
-                <Button variant="outline-primary" size="sm">
+                <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => onEdit(contact)}
+                >
                     Редактировать
                 </Button>
                 <Button

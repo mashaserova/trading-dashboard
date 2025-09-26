@@ -6,6 +6,7 @@ import { ListGroup } from "react-bootstrap";
 interface ContactListProps {
     contacts: Contact[];
     onDelete: (id: string) => void;
+    onEdit: (contact: Contact) => void;
 }
 
 const groupContacts = (contacts: Contact[]): Record<string, Contact[]> => {
@@ -19,7 +20,7 @@ const groupContacts = (contacts: Contact[]): Record<string, Contact[]> => {
     }, {} as Record<string, Contact[]>);
 };
 
-const ContactList: FC<ContactListProps> = ({ contacts, onDelete }) => {
+const ContactList: FC<ContactListProps> = ({ contacts, onDelete, onEdit }) => {
     const groupedContacts = useMemo(() => groupContacts(contacts), [contacts]);
 
     return (
@@ -33,6 +34,7 @@ const ContactList: FC<ContactListProps> = ({ contacts, onDelete }) => {
                     key={contact.id}
                     contact={contact}
                     onDelete={onDelete}
+                    onEdit={onEdit}
                 />
             ))}
             </ListGroup>
