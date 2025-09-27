@@ -1,22 +1,27 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import ContactList from "../components/organisms/ContactList/index";
-import { Container, Button, Offcanvas, Alert } from "react-bootstrap";
+import { Container, Button, Offcanvas, Alert, Row, Col, Form } from "react-bootstrap";
 import Head from "next/head";
 import { addContact, deleteContact } from "@/store/contactsSlice";
 import ContactForm from "@/components/organisms/ContactForm"
-import { Contact } from "@/types/contact";
+import { Contact, ContactType } from "@/types/contact";
 import { updateContact } from "@/store/contactsSlice";
+
+type FilterType = ContactType | 'all';
+type SortType = 'newest' | 'oldest';
 
 export default function HomePage() {
   const contactList = useSelector((state: RootState) => state.contacts.contactList);
   const dispatch = useDispatch();
 
+  const [contactToEdit, setContactToEdit] = useState<Contact | null>(null);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
-  const [contactToEdit, setContactToEdit] = useState<Contact | null>(null);
+  const [filter, setFilter] = useState<FilterType>('all');
+  const [sort, setSort] = useState<SortType>('newest');
 
   const handleShowOffcanvas = () => setShowOffcanvas(true);
   const handleCloseOffcanvas = () => {
@@ -24,16 +29,6 @@ export default function HomePage() {
     setContactToEdit(null);
   };
 
-  const handleAddContact = (data: Omit<Contact, 'id'>) => {
-    dispatch(addContact(data));
-    setShowAlert(true);
-    setTimeout(() => {
-      handleCloseOffcanvas();
-      setShowAlert(false);
-    }, 2000);
-  };
-
-  
   const handleDeleteContact = (id: string) => {
     if (window.confirm("Вы уверены, что хотите удалить этот контакт?")) {
       dispatch(deleteContact(id));
@@ -58,6 +53,18 @@ export default function HomePage() {
     }, 2000)
   }
 
+  const displayedContacts = useMemo(() => {
+    let contacts = [...contactList];
+
+    if (filter !== 'all') {
+      contacts = contacts.filter(contact => contact.type === filter);
+    }
+    if (sort === 'oldest') {
+      contacts.reverse();
+    }
+    return contacts;
+  }, [contactList, filter, sort])
+
   return (
     <>
       <Head>
@@ -69,10 +76,34 @@ export default function HomePage() {
           <Button variant="primary" onClick={handleShowOffcanvas}>Добавить контакт</Button>
         </header>
 
+        {/* разметка для фильтров */}
+        <Row className="mb-4 g-3">
+          <Col md={6}>
+            <Form.Group controlId="filterByType">
+              <Form.Label>Фильтер по типу</Form.Label>
+              <Form.Select value={filter} onChange={(e) => setFilter(e.target.value as FilterType)}>
+                <option value="all">Все типы</option>
+                {Object.values(ContactType).map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="sortByDate">
+              <Form.Label>Сортировка</Form.Label>
+              <Form.Select value={sort} onChange={(e) => setSort(e.target.value as SortType)}>
+                <option value="newest">Сначала новые</option>
+                <option value="oldest">Сначала старые</option>
+              </Form.Select>
+            </Form.Group>
+          </Col>
+        </Row>
+
         <main>
           {/* Передаем наш список контактов в компонент для отображения */}
           <ContactList
-            contacts={contactList}
+            contacts={displayedContacts}
             onDelete={handleDeleteContact}
             onEdit={handleEditContact}
           />
@@ -91,7 +122,7 @@ export default function HomePage() {
           )}
 
           <ContactForm
-            onSubmit={handleAddContact}
+            onSubmit={handleSaveContact}
             editingContact={contactToEdit}
           />
         </Offcanvas.Body>
