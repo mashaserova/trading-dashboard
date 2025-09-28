@@ -14,12 +14,41 @@ interface ContactFormProps {
     editingContact?: Contact | null;
 }
 
+const validationPatterns = {
+    [ContactType.Phone]: {
+        pattern: {
+        value: /^((\+7|7|8)+([0-9]){10})$/,
+        message: "Введите корректный номер, например: +79991234567 или 89991234567",
+        },
+    },
+    [ContactType.Email]: {
+        pattern: {
+        value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+        message: "Введите корректный email",
+        },
+    },
+    [ContactType.Telegram]: {
+        pattern: {
+        value: /^@[a-zA-Z0-9_]{5,32}$/,
+        message: "Введите корректный username, например: @username",
+        },
+    },
+    [ContactType.Website]: {
+        pattern: {
+        value: /^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*$/,
+        message: "Введите корректный адрес сайта",
+        },
+    },
+};
+
 const ContactForm: FC<ContactFormProps> = ({ onSubmit, editingContact }) => {
     const {
         register,
         handleSubmit,
         formState: { errors },
         reset,
+        watch,
+        trigger,
     } = useForm<FormInputs>({
         defaultValues: {
             type: editingContact?.type || ContactType.Phone,
@@ -28,15 +57,19 @@ const ContactForm: FC<ContactFormProps> = ({ onSubmit, editingContact }) => {
         }
     });
 
+    const selectedType = watch("type");
+
+    const handleFormSubmit: SubmitHandler<FormInputs> = (data) => {
+        onSubmit(data);
+    };
+    useEffect(() => {
+        trigger("value");
+    }, [selectedType, trigger])
     useEffect(() => {
         if (editingContact) {
             reset(editingContact);
         }
     }, [editingContact, reset]);
-
-    const handleFormSubmit: SubmitHandler<FormInputs> = (data) => {
-        onSubmit(data);
-    };
 
     return (
         <Form onSubmit={handleSubmit(handleFormSubmit)}>
@@ -60,14 +93,16 @@ const ContactForm: FC<ContactFormProps> = ({ onSubmit, editingContact }) => {
                     {errors.type?.message}
                 </Form.Control.Feedback>
             </Form.Group>
-
             {/* поле контакт */}
             <Form.Group className="mb-3" controlId="contactValue">
                 <Form.Label>Контакт</Form.Label>
                 <Form.Control
                     type="text"
-                    placeholder="Введите email, телефон и т.д"
-                    {...register("value", { required: "Это поле обязательное" })}
+                    placeholder="Введите контактные данные"
+                    {...register("value", {
+                        required: "Это поле обязательное",
+                        pattern: validationPatterns[selectedType]?.pattern,
+                    })}
                     isInvalid={!!errors.value}
                 />
                 <Form.Control.Feedback type="invalid">
