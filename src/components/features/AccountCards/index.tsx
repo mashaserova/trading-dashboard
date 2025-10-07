@@ -21,4 +21,4 @@ const AccountCard: FC<AccountCardProps> = ({ account }) => {
     return null;
 }
 
-export default Account
+export default AccountCard;
