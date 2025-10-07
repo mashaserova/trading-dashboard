@@ -1,8 +1,11 @@
-import { Container } from "react-bootstrap";
+import { Container, Row, Col, Modal, Alert } from "react-bootstrap";
 import Head from "next/head";
 import { useState } from "react";
 import { Account } from "@/types/account";
 import { mockAccounts } from "@/data/mockAccounts";
+
+import AccountCard from "@/components/features/AccountCards";
+
 
 export default function DashboardPage() {
   const [accounts, setAccounts] = useState<Account[]>(mockAccounts);

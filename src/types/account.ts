@@ -1,10 +1,10 @@
-interface AppTradingAccount {
+export interface AppTradingAccount {
     type: 'AppTradingAccount';
     id: string;
     balance: number;
 }
 
-interface StandardTradingAccount {
+export interface StandardTradingAccount {
     type: 'StandardTradingAccount';
     id: string;
     active: boolean;
