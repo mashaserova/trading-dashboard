@@ -1,4 +1,4 @@
-import { Container, Row, Col, Modal, Alert } from "react-bootstrap";
+import { Container, Row, Col, Modal } from "react-bootstrap";
 import Head from "next/head";
 import { useState } from "react";
 import { Account } from "@/types/account";
@@ -12,14 +12,12 @@ export default function DashboardPage() {
   const [accounts, setAccounts] = useState<Account[]>(mockAccounts);
 
   const [showModal, setShowModal] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
   const handleAddAccountClick = () => {
     const activeAccountsCount = accounts.filter(acc => {
       return acc.type === 'StandardTradingAccount' && acc.active;
     }).length;
     if (activeAccountsCount >= 5) {
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
+      alert('Дoбавлять новый счет можно только при количестве активных счетов меньше 5');
     } else {
       setShowModal(true);
     }
@@ -32,13 +30,6 @@ export default function DashboardPage() {
         <title>Trading Dashboard</title>
       </Head>
       <Container className="py-4">
-        {/* уведомление при попытке добавить 6-й счет */}
-        {showAlert && (
-          <Alert variant="warning" onClose={() => setShowAlert(false)} dismissible>
-            Добавлять новый счет можно только при количестве активных счетов меньше 5
-          </Alert>
-        )}
-
         <h1>DASHBOARD</h1>
         
         <Row className="gy-4 mt-2">
