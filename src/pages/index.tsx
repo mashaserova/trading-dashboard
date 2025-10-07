@@ -9,7 +9,7 @@ import AddAccountCard from "@/components/features/AccountCards/AddAccountCard";
 
 
 export default function DashboardPage() {
-  const [accounts, setAccounts] = useState<Account[]>(mockAccounts);
+  const [accounts, setAccounts] = useState<Account[]>(mockAccounts); //setAccounts для дальнейшего расширения приложения
 
   const [showModal, setShowModal] = useState(false);
   const handleAddAccountClick = () => {
